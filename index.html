@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Toolkit - Instagram Username & Google Dorking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+            text-align: left;
+        }
+
+        .warning strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .tab-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab-btn {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #667eea;
+        }
+
+        .tab-content {
+            padding: 30px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        .instagram-section {
+            background: linear-gradient(45deg, #833AB4, #E1306C, #F77737);
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .query-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .query-list li {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .query-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            display: block;
+            overflow-x: auto;
+        }
+
+        .dorks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dork-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .dork-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dork-category {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+
+        .dork-query {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            word-break: break-all;
+            font-size: 14px;
+        }
+
+        .dork-description {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .tool-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .dorks-grid, .tool-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OSINT Toolkit Indonesia</h1>
+            <p class="subtitle">Instagram Username Search & Google Dorking untuk Investigasi Legal</p>
+            <div class="warning">
+                ⚠️ <strong>PERINGATAN ETIKA:</strong><br>
+                1. Tools ini hanya untuk tujuan edukasi, penelitian, dan investigasi LEGAL<br>
+                2. Selalu patuhi hukum dan regulasi privasi data<br>
+                3. Jangan gunakan untuk stalking, hacking, atau aktivitas ilegal<br>
+                4. Respect privacy boundaries dan Terms of Service platform
+            </div>
+        </header>
+
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('instagram')">Instagram OSINT</button>
+                <button class="tab-btn" onclick="switchTab('dorking')">Google Dorking</button>
+                <button class="tab-btn" onclick="switchTab('tools')">Tools Tambahan</button>
+            </div>
+
+            <!-- Tab Instagram OSINT -->
+            <div id="instagram-tab" class="tab-content active">
+                <div class="instagram-section">
+                    <h2 class="section-title">🔍 Pencarian Username Instagram</h2>
+                    <p>Cari jejak digital username Instagram di berbagai platform</p>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" id="usernameInput" placeholder="Masukkan username Instagram (tanpa @)">
+                    <button onclick="searchInstagram()">Cari Jejak Digital</button>
+                </div>
+
+                <div id="instagramResults" style="display: none;">
+                    <h3>Hasil Pencarian untuk: <span id="usernameResult"></span></h3>
+                    
+                    <div class="result-box">
+                        <h4>🔗 Link Investigasi:</h4>
+                        <div id="generatedLinks"></div>
+                    </div>
+
+                    <div class="result-box">
+                        <h4>📋 Daftar Google Dorks untuk Username Ini:</h4>
+                        <div id="generatedDorks"></div>
+                    </div>
+
+                    <button onclick="copyAllLinks()" class="secondary" style="margin-top: 15px;">Salin Semua Link</button>
+                </div>
+
+                <h3 class="section-title">🎯 Teknik OSINT Instagram yang Umum</h3>
+                <ul class="query-list">
+                    <li>
+                        <strong>Pencarian Cross-Platform:</strong>
+                        <code class="query-code">site:twitter.com "@username" OR "username"</code>
+                        Cari username yang sama di platform lain
+                    </li>
+                    <li>
+                        <strong>Pencarian Foto Profil:</strong>
+                        <code class="query-code">"username" inurl:instagram.com filetype:jpg OR filetype:png</code>
+                        Cari foto profil yang digunakan
+                    </li>
+                    <li>
+                        <strong>Pencarian Konten:</strong>
+                        <code class="query-code">"caption" "username" site:instagram.com</code>
+                        Cari postingan spesifik
+                    </li>
+                    <li>
+                        <strong>Pencarian Metadata:</strong>
+                        <code class="query-code">intext:"instagram.com/username" filetype:log OR filetype:txt</code>
+                        Cari referensi di file log
+                    </li>
+                </ul>
+
+                <h3 class="section-title">🛡️ Tools Investigasi Instagram</h3>
+                <div class="tool-grid">
+                    <div class="tool-card" onclick="openTool('storysaver')">
+                        <div class="tool-icon">📥</div>
+                        <h4>Story Downloader</h4>
+                        <p>View dan download stories</p>
+                    </div>
+                    <div class="tool-card" onclick="openTool('analyzer')">
+                        <div class="tool-icon">📊</div>
+                        <h4>Profile Analyzer</h4>
+                        <p>Analisis pola posting</p>
+                    </div>
+                    <div class="tool-card" onclick="openTool('hashtag')">
+                        <div class="tool-icon">🏷️</div>
+                        <h4>Hashtag Tracker</h4>
+                        <p>Lacak hashtag populer</p>
+                    </div>
+                    <div class="tool-card" onclick="openTool('metadata')">
+                        <div class="tool-icon">🔍</div>
+                        <h4>Metadata Checker</h4>
+                        <p>Cek EXIF data foto</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Google Dorking -->
+            <div id="dorking-tab" class="tab-content">
+                <h2 class="section-title">Google Dorking Database</h2>
+                
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Cari dorks berdasarkan kategori atau deskripsi...">
+                    <button onclick="searchDorks()">Cari Dork</button>
+                </div>
+                
+                <div class="category-filter" id="categoryFilter">
+                    <!-- Categories will be populated by JavaScript -->
+                </div>
+
+                <div class="dorks-grid" id="dorksGrid">
+                    <!-- Dorks will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tab Tools Tambahan -->
+            <div id="tools-tab" class="tab-content">
+                <h2 class="section-title">🛠️ OSINT Tools Tambahan</h2>
+                
+                <div class="tool-grid">
+                    <div class="tool-card" onclick="openTool('reverseImage')">
+                        <div class="tool-icon">🖼️</div>
+                        <h4>Reverse Image Search</h4>
+                        <p>Google Images, TinEye</p>
+                    </div>
+                    <div class="tool-card" onclick="openTool('emailSearch')">
+                        <div class="tool-icon">📧</div>
+                        <h4>Email OSINT</h4>
+                        <p>Hunter.io, Epieos</p>
+                    </div>
+                    <div class="tool-card" onclick="openTool('phoneLookup')">
+                        <div class="tool-icon">📱</div>
+                        <h4>Phone Lookup</h4>
+                        <p>Nomor telepon investigasi</p>
+                    </div>
+                    <div class="tool-card" onclick="openTool('domainTools')">
+                        <div class="tool-icon">🌐</div>
+                        <h4>Domain Tools</h4>
+                        <p>Whois, DNS lookup</p>
+                    </div>
+                    <div class="tool-card" onclick="openTool('socialMedia')">
+                        <div class="tool-icon">👥</div>
+                        <h4>Social Media Search</h4>
+                        <p>Sherlock, Social-searcher</p>
+                    </div>
+                    <div class="tool-card" onclick="openTool('geolocation')">
+                        <div class="tool-icon">📍</div>
+                        <h4>Geolocation Tools</h4>
+                        <p>Google Earth, GPS coordinates</p>
+                    </div>
+                </div>
+
+                <h3 class="section-title" style="margin-top: 30px;">📚 Sumber Data OSINT</h3>
+                <ul class="query-list">
+                    <li><strong>Data Publik Pemerintah:</strong> SIPP, BPJS, Dukcapil (hanya untuk tujuan legal)</li>
+                    <li><strong>Media Sosial:</strong> Twitter API, Facebook Graph (terbatas)</li>
+                    <li><strong>Forum Online:</strong> Kaskus, Reddit, Quora</li>
+                    <li><strong>Database Terbuka:</strong> HaveIBeenPwned, DeHashed</li>
+                    <li><strong>Arsip Internet:</strong> Wayback Machine, Archive.today</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2024 OSINT Toolkit Indonesia - Untuk tujuan edukasi dan investigasi legal</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Gunakan dengan bijak dan selalu patuhi hukum yang berlaku
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Data Google Dorks
+        const googleDorks = [
+            {
+                id: 1,
+                category: "Instagram OSINT",
+                query: "site:instagram.com \"username\" \"bio\"",
+                description: "Mencari bio Instagram spesifik"
+            },
+            {
+                id: 2,
+                category: "Instagram OSINT",
+                query: "\"instagram.com/p/\" \"caption\" \"keyword\"",
+                description: "Mencari postingan Instagram dengan keyword tertentu"
+            },
+            {
+                id: 3,
+                category: "Instagram OSINT",
+                query: "site:twitter.com \"instagram.com/username\"",
+                description: "Mencari referensi Instagram di Twitter"
+            },
+            {
+                id: 4,
+                category: "Informasi Sensitif",
+                query: "site:example.com filetype:pdf",
+                description: "Mencari file PDF pada situs tertentu"
+            },
+            {
+                id: 5,
+                category: "Login Pages",
+                query: "intitle:\"login\" \"admin\" site:example.com",
+                description: "Mencari halaman login admin"
+            },
+            {
+                id: 6,
+                category: "Konfigurasi",
+                query: "ext:xml | ext:conf | ext:cnf | ext:reg | ext:inf",
+                description: "Mencari file konfigurasi sistem"
+            },
+            {
+                id: 7,
+                category: "Database",
+                query: "ext:sql | ext:dbf | ext:mdb",
+                description: "Mencari file database"
+            },
+            {
+                id: 8,
+                category: "Log Files",
+                query: "ext:log \"error\" | \"warning\"",
+                description: "Mencari file log yang berisi error"
+            },
+            {
+                id: 9,
+                category: "Social Media",
+                query: "\"@username\" site:facebook.com OR site:twitter.com",
+                description: "Mencari username di berbagai platform"
+            },
+            {
+                id: 10,
+                category: "Email",
+                query: "\"@domain.com\" filetype:xls OR filetype:csv",
+                description: "Mencari daftar email"
+            }
+        ];
+
+        // Fungsi untuk mencari username Instagram
+        function searchInstagram() {
+            const username = document.getElementById('usernameInput').value.trim();
+            
+            if (!username) {
+                alert('Masukkan username Instagram terlebih dahulu');
+                return;
+            }
+
+            document.getElementById('usernameResult').textContent = username;
+            
+            // Generate links
+            const links = generateInstagramLinks(username);
+            document.getElementById('generatedLinks').innerHTML = links;
+            
+            // Generate dorks
+            const dorks = generateInstagramDorks(username);
+            document.getElementById('generatedDorks').innerHTML = dorks;
+            
+            // Show results
+            document.getElementById('instagramResults').style.display = 'block';
+        }
+
+        // Generate links untuk investigasi Instagram
+        function generateInstagramLinks(username) {
+            const platforms = [
+                {
+                    name: 'Instagram',
+                    url: `https://www.instagram.com/${username}/`,
+                    icon: '📷'
+                },
+                {
+                    name: 'Google Search',
+                    url: `https://www.google.com/search?q="${username}"+instagram`,
+                    icon: '🔍'
+                },
+                {
+                    name: 'Twitter Search',
+                    url: `https://twitter.com/search?q="${username}"&f=user`,
+                    icon: '🐦'
+                },
+                {
+                    name: 'Facebook Search',
+                    url: `https://www.facebook.com/search/top/?q=${username}`,
+                    icon: '📘'
+                },
+                {
+                    name: 'Pictriev (Face Recognition)',
+                    url: `http://pictriev.com/?query=${username}`,
+                    icon: '👤'
+                },
+                {
+                    name: 'Social Searcher',
+                    url: `https://www.social-searcher.com/search-users/?q=${username}`,
+                    icon: '👥'
+                },
+                {
+                    name: 'Have I Been Pwned',
+                    url: `https://haveibeenpwned.com/`,
+                    icon: '🔐'
+                },
+                {
+                    name: 'Wayback Machine',
+                    url: `https://web.archive.org/web/*/https://instagram.com/${username}`,
+                    icon: '🏛️'
+                }
+            ];
+
+            let html = '<ul style="list-style: none; padding: 0;">';
+            platforms.forEach(platform => {
+                html += `
+                    <li style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 5px;">
+                        ${platform.icon} <strong>${platform.name}:</strong><br>
+                        <a href="${platform.url}" target="_blank" style="color: #667eea; word-break: break-all;">
+                            ${platform.url}
+                        </a>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            
+            return html;
+        }
+
+        // Generate Google Dorks untuk Instagram username
+        function generateInstagramDorks(username) {
+            const dorks = [
+                `"${username}" site:instagram.com`,
+                `intext:"${username}" intext:"instagram"`,
+                `"instagram.com/${username}" site:twitter.com OR site:facebook.com`,
+                `"@${username}" "email" OR "contact"`,
+                `"${username}" filetype:jpg OR filetype:png "profile"`,
+                `"${username}" "location" "instagram"`,
+                `"bio" "${username}" site:instagram.com`,
+                `"followers" "${username}" instagram`,
+                `inurl:"${username}" "instagram.com"`,
+                `"${username}" "reels" OR "story" instagram`
+            ];
+
+            let html = '<ul style="list-style: none; padding: 0;">';
+            dorks.forEach((dork, index) => {
+                html += `
+                    <li style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 5px;">
+                        <strong>Dork ${index + 1}:</strong><br>
+                        <code style="background: #2d3748; color: white; padding: 5px 10px; border-radius: 3px; display: block; margin: 5px 0;">
+                            ${dork}
+                        </code>
+                        <button onclick="copyDork('${dork.replace(/'/g, "\\'")}')" style="background: #667eea; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                            Salin
+                        </button>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            
+            return html;
+        }
+
+        // Salin semua link
+        function copyAllLinks() {
+            const links = [];
+            document.querySelectorAll('#generatedLinks a').forEach(link => {
+                links.push(link.href);
+            });
+            
+            const text = links.join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Semua link berhasil disalin ke clipboard!');
+            });
+        }
+
+        // Salin dork individual
+        function copyDork(dork) {
+            navigator.clipboard.writeText(dork).then(() => {
+                alert('Dork berhasil disalin!');
+            });
+        }
+
+        // Buka tool
+        function openTool(toolName) {
+            const toolUrls = {
+                'storysaver': 'https://www.insta-stories.net/',
+                'analyzer': 'https://www.picodash.com/instagram/analyzer',
+                'hashtag': 'https://www.all-hashtag.com/',
+                'metadata': 'https://www.metadata2go.com/',
+                'reverseImage': 'https://images.google.com/',
+                'emailSearch': 'https://hunter.io/',
+                'phoneLookup': 'https://www.truecaller.com/',
+                'domainTools': 'https://whois.domaintools.com/',
+                'socialMedia': 'https://www.social-searcher.com/',
+                'geolocation': 'https://earth.google.com/web/'
+            };
+            
+            if (toolUrls[toolName]) {
+                window.open(toolUrls[toolName], '_blank');
+            }
+        }
+
+        // Fungsi untuk Google Dorking tab
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Initialize dorks if needed
+            if (tabName === 'dorking' && !dorksInitialized) {
+                initializeDorks();
+                dorksInitialized = true;
+            }
+        }
+
+        // Initialize Google Dorks
+        let dorksInitialized = false;
+        
+        function initializeDorks() {
+            renderCategories();
+            renderDorks(googleDorks);
+        }
+
+        function renderCategories() {
+            const categories = [...new Set(googleDorks.map(dork => dork.category))];
+            const categoryFilter = document.getElementById('categoryFilter');
+            categoryFilter.innerHTML = '';
+            
+            // Tombol "Semua"
+            const allButton = document.createElement('button');
+            allButton.className = 'category-btn active';
+            allButton.textContent = 'Semua';
+            allButton.onclick = () => filterDorks('all');
+            categoryFilter.appendChild(allButton);
+            
+            // Tombol kategori
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.className = 'category-btn';
+                button.textContent = category;
+                button.onclick = () => filterDorks(category);
+                categoryFilter.appendChild(button);
+            });
+        }
+
+        function renderDorks(dorks) {
+            const dorksGrid = document.getElementById('dorksGrid');
+            dorksGrid.innerHTML = '';
+            
+            dorks.forEach(dork => {
+                const card = document.createElement('div');
+                card.className = 'dork-card';
+                
+                card.innerHTML = `
+                    <div class="dork-category">${dork.category}</div>
+                    <div class="dork-query">${dork.query}</div>
+                    <p class="dork-description">${dork.description}</p>
+                    <button onclick="copyToClipboard('${dork.query.replace(/'/g, "\\'")}')">Salin Dork</button>
+                `;
+                
+                dorksGrid.appendChild(card);
+            });
+        }
+
+        function filterDorks(category) {
+            // Update active button
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            
+            // Filter dorks
+            let filteredDorks;
+            if (category === 'all') {
+                filteredDorks = googleDorks;
+            } else {
+                filteredDorks = googleDorks.filter(dork => dork.category === category);
+            }
+            
+            renderDorks(filteredDorks);
+        }
+
+        function searchDorks() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filteredDorks = googleDorks.filter(dork => 
+                dork.category.toLowerCase().includes(searchTerm) ||
+                dork.query.toLowerCase().includes(searchTerm) ||
+                dork.description.toLowerCase().includes(searchTerm)
+            );
+            
+            renderDorks(filteredDorks);
+            
+            // Reset kategori button
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('.category-btn').classList.add('active');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Dork berhasil disalin ke clipboard!');
+            });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Instagram search on enter
+            document.getElementById('usernameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchInstagram();
+                }
+            });
+            
+            // Initialize dork search on enter
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchDorks();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
